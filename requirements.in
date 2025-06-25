@@ -1,0 +1,16 @@
+aiohttp
+fastapi
+uvicorn
+pydantic
+pydantic-settings
+python-multipart
+trafilatura
+sec-api
+tiktoken
+hdbscan
+yfinance
+ipykernel
+python-dotenv
+sentence-transformers
+qdrant-client[fastembed]
+openai
