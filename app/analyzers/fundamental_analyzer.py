@@ -54,66 +54,46 @@ class FundamentalAnalyzer(BaseAnalyzer[FundamentalAnalysis]):
 
     async def _analyze_risk_factors(self, ticker: str) -> RiskAssessment:
         """Analyze 10-K Section 1A - Risk Factors"""
-        documents = self.document_retriever.query_documents(
-            query="risk factors regulatory competitive operational threats",
+        return await self._analyze_section(
             ticker=ticker,
-            form_type="10-K",
-        )
-
-        content = self.document_retriever.documents_to_context(documents)
-
-        return await self._call_openai_structured(
+            section_name="Risk factors",
+            query="risk factors regulatory competitive operational threats",
             prompt_name="risk_analysis",
-            user_content=f"Risk factors content:\n{content}",
             response_model=RiskAssessment,
+            form_type="10-K",
         )
 
     async def _analyze_business_model(self, ticker: str) -> BusinessAnalysis:
         """Analyze 10-K Section 1 - Business"""
-        documents = self.document_retriever.query_documents(
-            query="business operations revenue model competitive advantages",
+        return await self._analyze_section(
             ticker=ticker,
-            form_type="10-K",
-        )
-
-        content = self.document_retriever.documents_to_context(documents)
-
-        return await self._call_openai_structured(
+            section_name="Business",
+            query="business operations revenue model competitive advantages",
             prompt_name="business_analysis",
-            user_content=f"Business content:\n{content}",
             response_model=BusinessAnalysis,
+            form_type="10-K",
         )
 
     async def _analyze_financials(self, ticker: str) -> FinancialMetrics:
         """Analyze 10-K Section 8 - Financial Statements"""
-        documents = self.document_retriever.query_documents(
-            query="financial statements revenue income balance sheet cash flow",
+        return await self._analyze_section(
             ticker=ticker,
-            form_type="10-K",
-        )
-
-        content = self.document_retriever.documents_to_context(documents)
-
-        return await self._call_openai_structured(
+            section_name="Financial statements",
+            query="financial statements revenue income balance sheet cash flow",
             prompt_name="financial_analysis",
-            user_content=f"Financial statements content:\n{content}",
             response_model=FinancialMetrics,
+            form_type="10-K",
         )
 
     async def _analyze_management_discussion(self, ticker: str) -> ManagementInsights:
         """Analyze 10-K Section 7 - MD&A"""
-        documents = self.document_retriever.query_documents(
-            query="management discussion analysis outlook guidance strategy",
+        return await self._analyze_section(
             ticker=ticker,
-            form_type="10-K",
-        )
-
-        content = self.document_retriever.documents_to_context(documents)
-
-        return await self._call_openai_structured(
+            section_name="Management discussion",
+            query="management discussion analysis outlook guidance strategy",
             prompt_name="management_analysis",
-            user_content=f"Management discussion content:\n{content}",
             response_model=ManagementInsights,
+            form_type="10-K",
         )
 
     async def _consolidate_analyses(

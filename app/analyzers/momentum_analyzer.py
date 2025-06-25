@@ -49,50 +49,35 @@ class MomentumAnalyzer(BaseAnalyzer[MomentumAnalysis]):
 
     async def _analyze_operational_updates(self, ticker: str) -> OperationalUpdate:
         """Analyze 10-Q Part 1 Item 1 - Business Operations"""
-        documents = self.document_retriever.query_documents(
-            query="business operations developments products services expansion",
+        return await self._analyze_section(
             ticker=ticker,
-            form_type="10-Q",
-        )
-
-        content = self.document_retriever.documents_to_context(documents)
-
-        return await self._call_openai_structured(
+            section_name="Operational",
+            query="business operations developments products services expansion",
             prompt_name="operational_updates",
-            user_content=f"Operational content:\n{content}",
             response_model=OperationalUpdate,
+            form_type="10-Q",
         )
 
     async def _analyze_quarterly_performance(self, ticker: str) -> QuarterlyPerformance:
         """Analyze 10-Q Part 1 Item 2 - Financial Performance"""
-        documents = self.document_retriever.query_documents(
-            query="financial performance revenue margins liquidity costs quarterly",
+        return await self._analyze_section(
             ticker=ticker,
-            form_type="10-Q",
-        )
-
-        content = self.document_retriever.documents_to_context(documents)
-
-        return await self._call_openai_structured(
+            section_name="Financial performance",
+            query="financial performance revenue margins liquidity costs quarterly",
             prompt_name="quarterly_performance",
-            user_content=f"Financial performance content:\n{content}",
             response_model=QuarterlyPerformance,
+            form_type="10-Q",
         )
 
     async def _analyze_short_term_risks(self, ticker: str) -> ShortTermRisks:
         """Analyze 10-Q Part 2 Item 1A - Risk Factors"""
-        documents = self.document_retriever.query_documents(
-            query="risk factors emerging threats regulatory competitive short term",
+        return await self._analyze_section(
             ticker=ticker,
-            form_type="10-Q",
-        )
-
-        content = self.document_retriever.documents_to_context(documents)
-
-        return await self._call_openai_structured(
+            section_name="Risk factors",
+            query="risk factors emerging threats regulatory competitive short term",
             prompt_name="short_term_risks",
-            user_content=f"Risk factors content:\n{content}",
             response_model=ShortTermRisks,
+            form_type="10-Q",
         )
 
     async def _consolidate_analyses(
