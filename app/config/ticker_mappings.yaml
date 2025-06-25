@@ -1,0 +1,38 @@
+company_ticker_mappings:
+  # Tech companies
+  apple: AAPL
+  microsoft: MSFT
+  google: GOOGL
+  alphabet: GOOGL
+  amazon: AMZN
+  tesla: TSLA
+  meta: META
+  facebook: META
+  netflix: NFLX
+  nvidia: NVDA
+  
+  # Traditional companies
+  disney: DIS
+  "coca cola": KO
+  "coca-cola": KO
+  ibm: IBM
+  johnson: JNJ
+  "johnson & johnson": JNJ
+  "johnson and johnson": JNJ
+  
+  # Banks
+  "jp morgan": JPM
+  jpmorgan: JPM
+  "bank of america": BAC
+  "wells fargo": WFC
+  
+  # Retail
+  walmart: WMT
+  target: TGT
+  "home depot": HD
+  
+  # Airlines
+  delta: DAL
+  united: UAL
+  american: AAL
+  southwest: LUV

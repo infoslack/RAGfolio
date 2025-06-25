@@ -19,15 +19,33 @@ class MomentumAnalyzer(BaseAnalyzer[MomentumAnalysis]):
         """Execute complete momentum analysis"""
         logger.info(f"Starting momentum analysis for {ticker}")
 
-        # Run all analyses in parallel
+        # Run all analyses in parallel using config
         (
             operational_update,
             quarterly_performance,
             short_term_risks,
         ) = await asyncio.gather(
-            self._analyze_operational_updates(ticker),
-            self._analyze_quarterly_performance(ticker),
-            self._analyze_short_term_risks(ticker),
+            self._analyze_section_from_config(
+                ticker=ticker,
+                analysis_type="momentum",
+                section_key="operational_updates",
+                response_model=OperationalUpdate,
+                form_type="10-Q",
+            ),
+            self._analyze_section_from_config(
+                ticker=ticker,
+                analysis_type="momentum",
+                section_key="quarterly_performance",
+                response_model=QuarterlyPerformance,
+                form_type="10-Q",
+            ),
+            self._analyze_section_from_config(
+                ticker=ticker,
+                analysis_type="momentum",
+                section_key="short_term_risks",
+                response_model=ShortTermRisks,
+                form_type="10-Q",
+            ),
         )
 
         # Prepare detailed results
@@ -46,39 +64,6 @@ class MomentumAnalyzer(BaseAnalyzer[MomentumAnalysis]):
         )
 
         return consolidated, detailed_results
-
-    async def _analyze_operational_updates(self, ticker: str) -> OperationalUpdate:
-        """Analyze 10-Q Part 1 Item 1 - Business Operations"""
-        return await self._analyze_section(
-            ticker=ticker,
-            section_name="Operational",
-            query="business operations developments products services expansion",
-            prompt_name="operational_updates",
-            response_model=OperationalUpdate,
-            form_type="10-Q",
-        )
-
-    async def _analyze_quarterly_performance(self, ticker: str) -> QuarterlyPerformance:
-        """Analyze 10-Q Part 1 Item 2 - Financial Performance"""
-        return await self._analyze_section(
-            ticker=ticker,
-            section_name="Financial performance",
-            query="financial performance revenue margins liquidity costs quarterly",
-            prompt_name="quarterly_performance",
-            response_model=QuarterlyPerformance,
-            form_type="10-Q",
-        )
-
-    async def _analyze_short_term_risks(self, ticker: str) -> ShortTermRisks:
-        """Analyze 10-Q Part 2 Item 1A - Risk Factors"""
-        return await self._analyze_section(
-            ticker=ticker,
-            section_name="Risk factors",
-            query="risk factors emerging threats regulatory competitive short term",
-            prompt_name="short_term_risks",
-            response_model=ShortTermRisks,
-            form_type="10-Q",
-        )
 
     async def _consolidate_analyses(
         self,

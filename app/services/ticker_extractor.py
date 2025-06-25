@@ -8,28 +8,21 @@ logger = logging.getLogger(__name__)
 class TickerExtractor:
     """Service responsible for extracting ticker symbols from user messages"""
 
-    def __init__(self, openai_api_key: str, model: str, prompt_manager):
+    def __init__(
+        self,
+        openai_api_key: str,
+        model: str,
+        prompt_manager,
+        config_loader,
+        temperature: float = 0.0,
+        max_tokens: int = 10,
+    ):
         self.client = AsyncOpenAI(api_key=openai_api_key)
         self.model = model
         self.prompt_manager = prompt_manager
-
-        # Company to ticker mapping for fast lookup
-        self.company_map = {
-            "apple": "AAPL",
-            "microsoft": "MSFT",
-            "google": "GOOGL",
-            "alphabet": "GOOGL",
-            "amazon": "AMZN",
-            "tesla": "TSLA",
-            "meta": "META",
-            "facebook": "META",
-            "netflix": "NFLX",
-            "nvidia": "NVDA",
-            "disney": "DIS",
-            "coca cola": "KO",
-            "ibm": "IBM",
-            "johnson": "JNJ",
-        }
+        self.config_loader = config_loader
+        self.temperature = temperature
+        self.max_tokens = max_tokens
 
     async def extract_ticker(self, message: str) -> Optional[str]:
         """Extract ticker symbol from user message using mapping + LLM fallback"""
@@ -43,11 +36,14 @@ class TickerExtractor:
         return await self._try_llm_extraction(message)
 
     def _try_direct_mapping(self, message: str) -> Optional[str]:
-        """Try to find ticker using direct company name mapping"""
+        """Try to find ticker using direct company name mapping from config"""
         message_lower = message.lower()
 
-        for company, ticker in self.company_map.items():
-            if company in message_lower:
+        # Get mappings from config
+        company_map = self.config_loader.get_ticker_mappings()
+
+        for company, ticker in company_map.items():
+            if company.lower() in message_lower:
                 logger.info(f"Direct mapping found ticker: {ticker}")
                 return ticker
 
@@ -62,12 +58,12 @@ class TickerExtractor:
 
             completion = await self.client.chat.completions.create(
                 model=self.model,
-                temperature=0,
+                temperature=self.temperature,
                 messages=[
                     {"role": "system", "content": extraction_prompt},
                     {"role": "user", "content": f"Extract ticker from: {message}"},
                 ],
-                max_tokens=10,
+                max_tokens=self.max_tokens,
             )
 
             result = completion.choices[0].message.content.strip().upper()

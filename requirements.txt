@@ -264,6 +264,7 @@ pytz==2025.2
     #   yfinance
 pyyaml==6.0.2
     # via
+    #   -r requirements.in
     #   huggingface-hub
     #   transformers
 pyzmq==27.0.0

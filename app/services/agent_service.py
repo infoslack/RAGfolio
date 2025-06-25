@@ -11,6 +11,7 @@ from app.services.retriever import QdrantRetriever
 from app.services.ticker_extractor import TickerExtractor
 from app.services.document_retriever import DocumentRetriever
 from app.services.prompt_manager import PromptManager
+from app.services.config_loader import ConfigLoader
 
 from app.analyzers import (
     FundamentalAnalyzer,
@@ -46,34 +47,52 @@ class AgentService:
         prompts_dir = Path(__file__).parent.parent / "prompts"
         self.prompt_manager = PromptManager(prompts_dir)
 
+        # Initialize config loader
+        self.config_loader = ConfigLoader(
+            queries_path=settings.queries_config_path,
+            ticker_mappings_path=settings.ticker_mappings_path,
+        )
+
         self.ticker_extractor = TickerExtractor(
             openai_api_key=settings.openai_api_key,
             model=self.model,
             prompt_manager=self.prompt_manager,
+            config_loader=self.config_loader,
+            temperature=settings.ticker_extraction_temperature,
+            max_tokens=settings.ticker_extraction_max_tokens,
         )
 
         self.document_retriever = DocumentRetriever(embedder, retriever)
 
-        # Initialize analyzers
+        # Initialize analyzers with config
         self.fundamental_analyzer = FundamentalAnalyzer(
             openai_client=self.client,
             document_retriever=self.document_retriever,
             prompt_manager=self.prompt_manager,
+            config_loader=self.config_loader,
             model=self.model,
+            temperature=settings.analysis_temperature,
+            document_limit=settings.document_search_limit,
         )
 
         self.momentum_analyzer = MomentumAnalyzer(
             openai_client=self.client,
             document_retriever=self.document_retriever,
             prompt_manager=self.prompt_manager,
+            config_loader=self.config_loader,
             model=self.model,
+            temperature=settings.analysis_temperature,
+            document_limit=settings.document_search_limit,
         )
 
         self.sentiment_analyzer = SentimentAnalyzer(
             openai_client=self.client,
             document_retriever=self.document_retriever,
             prompt_manager=self.prompt_manager,
+            config_loader=self.config_loader,
             model=self.model,
+            temperature=settings.analysis_temperature,
+            document_limit=settings.news_search_limit,
         )
 
     async def analyze_investment(

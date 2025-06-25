@@ -34,4 +34,20 @@ class Settings(BaseSettings):
 
     Responda à pergunta acima usando apenas as informações do contexto fornecido."""
 
+    # Document retrieval settings
+    document_search_limit: int = 5
+    news_search_limit: int = 10
+
+    # OpenAI analysis settings
+    analysis_temperature: float = 0.0
+    analysis_max_tokens: Optional[int] = None  # Use OpenAI default
+
+    # Ticker extraction settings
+    ticker_extraction_temperature: float = 0.0
+    ticker_extraction_max_tokens: int = 10
+
+    # Config file paths
+    queries_config_path: str = "app/config/queries.yaml"
+    ticker_mappings_path: str = "app/config/ticker_mappings.yaml"
+
     model_config = {"env_file": ".env", "extra": "allow"}

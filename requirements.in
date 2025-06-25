@@ -2,6 +2,7 @@ aiohttp
 fastapi
 uvicorn
 pydantic
+pyyaml
 pydantic-settings
 python-multipart
 trafilatura

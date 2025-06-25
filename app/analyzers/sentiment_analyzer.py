@@ -12,11 +12,17 @@ class SentimentAnalyzer(BaseAnalyzer[MarketSentiment]):
         """Execute market sentiment analysis from news"""
         logger.info(f"Starting sentiment analysis for {ticker}")
 
+        # Get config for sentiment analysis
+        config = self.config_loader.get_analysis_config("sentiment", "market_news")
+
+        # Replace {ticker} in query
+        query = config["query"].format(ticker=ticker)
+
         # Query recent news
         documents = self.document_retriever.query_news(
-            query=f"{ticker} earnings revenue stock price",
+            query=query,
             ticker=ticker,
-            limit=10,
+            limit=self.document_limit,  # Uses news_search_limit from settings
         )
 
         # Convert to formatted context
@@ -24,7 +30,7 @@ class SentimentAnalyzer(BaseAnalyzer[MarketSentiment]):
 
         # Analyze sentiment
         return await self._call_openai_structured(
-            prompt_name="sentiment_analysis",
-            user_content=f"Recent news content for {ticker}:\n{content}",
+            prompt_name=config["prompt_name"],
+            user_content=f"{config['section_name']} content for {ticker}:\n{content}",
             response_model=MarketSentiment,
         )

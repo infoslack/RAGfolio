@@ -20,17 +20,41 @@ class FundamentalAnalyzer(BaseAnalyzer[FundamentalAnalysis]):
         """Execute complete fundamental analysis"""
         logger.info(f"Starting fundamental analysis for {ticker}")
 
-        # Run all analyses in parallel
+        # Run all analyses in parallel using config
         (
             risk_analysis,
             business_analysis,
             financial_analysis,
             management_analysis,
         ) = await asyncio.gather(
-            self._analyze_risk_factors(ticker),
-            self._analyze_business_model(ticker),
-            self._analyze_financials(ticker),
-            self._analyze_management_discussion(ticker),
+            self._analyze_section_from_config(
+                ticker=ticker,
+                analysis_type="fundamental",
+                section_key="risk_factors",
+                response_model=RiskAssessment,
+                form_type="10-K",
+            ),
+            self._analyze_section_from_config(
+                ticker=ticker,
+                analysis_type="fundamental",
+                section_key="business_model",
+                response_model=BusinessAnalysis,
+                form_type="10-K",
+            ),
+            self._analyze_section_from_config(
+                ticker=ticker,
+                analysis_type="fundamental",
+                section_key="financial_statements",
+                response_model=FinancialMetrics,
+                form_type="10-K",
+            ),
+            self._analyze_section_from_config(
+                ticker=ticker,
+                analysis_type="fundamental",
+                section_key="management_discussion",
+                response_model=ManagementInsights,
+                form_type="10-K",
+            ),
         )
 
         # Prepare detailed results
@@ -51,50 +75,6 @@ class FundamentalAnalyzer(BaseAnalyzer[FundamentalAnalysis]):
         )
 
         return consolidated, detailed_results
-
-    async def _analyze_risk_factors(self, ticker: str) -> RiskAssessment:
-        """Analyze 10-K Section 1A - Risk Factors"""
-        return await self._analyze_section(
-            ticker=ticker,
-            section_name="Risk factors",
-            query="risk factors regulatory competitive operational threats",
-            prompt_name="risk_analysis",
-            response_model=RiskAssessment,
-            form_type="10-K",
-        )
-
-    async def _analyze_business_model(self, ticker: str) -> BusinessAnalysis:
-        """Analyze 10-K Section 1 - Business"""
-        return await self._analyze_section(
-            ticker=ticker,
-            section_name="Business",
-            query="business operations revenue model competitive advantages",
-            prompt_name="business_analysis",
-            response_model=BusinessAnalysis,
-            form_type="10-K",
-        )
-
-    async def _analyze_financials(self, ticker: str) -> FinancialMetrics:
-        """Analyze 10-K Section 8 - Financial Statements"""
-        return await self._analyze_section(
-            ticker=ticker,
-            section_name="Financial statements",
-            query="financial statements revenue income balance sheet cash flow",
-            prompt_name="financial_analysis",
-            response_model=FinancialMetrics,
-            form_type="10-K",
-        )
-
-    async def _analyze_management_discussion(self, ticker: str) -> ManagementInsights:
-        """Analyze 10-K Section 7 - MD&A"""
-        return await self._analyze_section(
-            ticker=ticker,
-            section_name="Management discussion",
-            query="management discussion analysis outlook guidance strategy",
-            prompt_name="management_analysis",
-            response_model=ManagementInsights,
-            form_type="10-K",
-        )
 
     async def _consolidate_analyses(
         self,
