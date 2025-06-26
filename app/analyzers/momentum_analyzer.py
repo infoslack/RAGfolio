@@ -1,5 +1,6 @@
 from app.analyzers.base_analyzer import BaseAnalyzer
 from app.models.agent import MomentumAnalysis
+from app.utils.decorators import handle_analyzer_errors
 import logging
 
 logger = logging.getLogger(__name__)
@@ -8,6 +9,7 @@ logger = logging.getLogger(__name__)
 class MomentumAnalyzer(BaseAnalyzer[MomentumAnalysis]):
     """Analyzer for Stream 2: Momentum Analysis (10-Q documents)"""
 
+    @handle_analyzer_errors("Momentum")
     async def analyze(self, ticker: str) -> MomentumAnalysis:
         """Execute complete momentum analysis"""
         logger.info(f"Starting momentum analysis for {ticker}")

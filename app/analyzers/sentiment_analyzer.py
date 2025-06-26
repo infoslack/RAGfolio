@@ -1,5 +1,6 @@
 from app.analyzers.base_analyzer import BaseAnalyzer
 from app.models.agent import MarketSentiment
+from app.utils.decorators import handle_analyzer_errors
 import logging
 
 logger = logging.getLogger(__name__)
@@ -8,6 +9,7 @@ logger = logging.getLogger(__name__)
 class SentimentAnalyzer(BaseAnalyzer[MarketSentiment]):
     """Analyzer for Stream 3: Market Sentiment Analysis (News)"""
 
+    @handle_analyzer_errors("Sentiment")
     async def analyze(self, ticker: str) -> MarketSentiment:
         """Execute market sentiment analysis from news"""
         logger.info(f"Starting sentiment analysis for {ticker}")

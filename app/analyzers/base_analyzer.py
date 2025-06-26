@@ -3,6 +3,7 @@ from typing import TypeVar, Generic, Type, Optional
 from openai import AsyncOpenAI
 from app.services.document_retriever import DocumentRetriever
 from app.services.prompt_manager import PromptManager
+from app.utils.decorators import handle_errors
 import logging
 
 logger = logging.getLogger(__name__)
@@ -36,6 +37,7 @@ class BaseAnalyzer(ABC, Generic[T]):
         """Main analysis method to be implemented by subclasses"""
         pass
 
+    @handle_errors("OpenAI structured call")
     async def _call_openai_structured(
         self,
         prompt_name: str,
@@ -44,28 +46,23 @@ class BaseAnalyzer(ABC, Generic[T]):
         temperature: Optional[float] = None,
     ) -> T:
         """Helper method to call OpenAI with structured output"""
-        try:
-            system_prompt = self.prompt_manager.get_prompt(prompt_name)
+        system_prompt = self.prompt_manager.get_prompt(prompt_name)
 
-            # Use instance temperature if not specified
-            if temperature is None:
-                temperature = self.temperature
+        # Use instance temperature if not specified
+        if temperature is None:
+            temperature = self.temperature
 
-            completion = await self.client.beta.chat.completions.parse(
-                model=self.model,
-                temperature=temperature,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_content},
-                ],
-                response_format=response_model,
-            )
+        completion = await self.client.beta.chat.completions.parse(
+            model=self.model,
+            temperature=temperature,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_content},
+            ],
+            response_format=response_model,
+        )
 
-            return completion.choices[0].message.parsed
-
-        except Exception as e:
-            logger.error(f"OpenAI call failed for {prompt_name}: {str(e)}")
-            raise
+        return completion.choices[0].message.parsed
 
     async def _analyze_section(
         self,

@@ -1,5 +1,6 @@
 from app.analyzers.base_analyzer import BaseAnalyzer
 from app.models.agent import FundamentalAnalysis
+from app.utils.decorators import handle_analyzer_errors
 import logging
 
 logger = logging.getLogger(__name__)
@@ -8,6 +9,7 @@ logger = logging.getLogger(__name__)
 class FundamentalAnalyzer(BaseAnalyzer[FundamentalAnalysis]):
     """Analyzer for Stream 1: Fundamental Analysis (10-K documents)"""
 
+    @handle_analyzer_errors("Fundamental")
     async def analyze(self, ticker: str) -> FundamentalAnalysis:
         """Execute complete fundamental analysis"""
         logger.info(f"Starting fundamental analysis for {ticker}")

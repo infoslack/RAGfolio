@@ -26,6 +26,7 @@ from app.models.agent import (
     FinalRecommendation,
     AgentResponse,
 )
+from app.utils.decorators import handle_errors
 
 import logging
 
@@ -94,6 +95,7 @@ class AgentService:
             document_limit=settings.news_search_limit,
         )
 
+    @handle_errors("Investment analysis")
     async def analyze_investment(
         self,
         ticker: Optional[str] = None,
@@ -102,47 +104,43 @@ class AgentService:
         """Run complete investment analysis with all 3 streams + aggregation"""
         start_time = time.time()
 
-        try:
-            # Extract ticker if not provided directly
-            if not ticker and message:
-                ticker = await self.ticker_extractor.extract_ticker(message)
+        # Extract ticker if not provided directly
+        if not ticker and message:
+            ticker = await self.ticker_extractor.extract_ticker(message)
 
-            if not ticker:
-                raise ValueError("Could not determine ticker symbol from input")
+        if not ticker:
+            raise ValueError("Could not determine ticker symbol from input")
 
-            logger.info(f"Starting complete investment analysis for {ticker}")
+        logger.info(f"Starting complete investment analysis for {ticker}")
 
-            # Execute all 3 streams in parallel
-            stream1_result, stream2_result, stream3_result = await asyncio.gather(
-                self.fundamental_analyzer.analyze(ticker),
-                self.momentum_analyzer.analyze(ticker),
-                self.sentiment_analyzer.analyze(ticker),
-            )
+        # Execute all 3 streams in parallel
+        stream1_result, stream2_result, stream3_result = await asyncio.gather(
+            self.fundamental_analyzer.analyze(ticker),
+            self.momentum_analyzer.analyze(ticker),
+            self.sentiment_analyzer.analyze(ticker),
+        )
 
-            # Run final aggregation
-            final_recommendation = await self._aggregate_analyses(
-                ticker, stream1_result, stream2_result, stream3_result
-            )
+        # Run final aggregation
+        final_recommendation = await self._aggregate_analyses(
+            ticker, stream1_result, stream2_result, stream3_result
+        )
 
-            execution_time = time.time() - start_time
+        execution_time = time.time() - start_time
 
-            logger.info(
-                f"Completed investment analysis for {ticker} in {execution_time:.2f}s"
-            )
+        logger.info(
+            f"Completed investment analysis for {ticker} in {execution_time:.2f}s"
+        )
 
-            return AgentResponse(
-                ticker=ticker,
-                execution_time=execution_time,
-                fundamental_analysis=stream1_result,
-                momentum_analysis=stream2_result,
-                market_sentiment=stream3_result,
-                final_recommendation=final_recommendation,
-            )
+        return AgentResponse(
+            ticker=ticker,
+            execution_time=execution_time,
+            fundamental_analysis=stream1_result,
+            momentum_analysis=stream2_result,
+            market_sentiment=stream3_result,
+            final_recommendation=final_recommendation,
+        )
 
-        except Exception as e:
-            logger.error(f"Investment analysis failed for {ticker}: {str(e)}")
-            raise Exception(f"Investment analysis failed: {str(e)}")
-
+    @handle_errors("Final aggregation")
     async def _aggregate_analyses(
         self,
         ticker: str,
@@ -164,21 +162,16 @@ class AgentService:
         {market_sentiment.model_dump()}
         """
 
-        try:
-            system_prompt = self.prompt_manager.get_prompt("final_recommendation")
+        system_prompt = self.prompt_manager.get_prompt("final_recommendation")
 
-            completion = await self.client.beta.chat.completions.parse(
-                model=self.model,
-                temperature=0,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": aggregation_input},
-                ],
-                response_format=FinalRecommendation,
-            )
+        completion = await self.client.beta.chat.completions.parse(
+            model=self.model,
+            temperature=0,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": aggregation_input},
+            ],
+            response_format=FinalRecommendation,
+        )
 
-            return completion.choices[0].message.parsed
-
-        except Exception as e:
-            logger.error(f"Final aggregation failed: {str(e)}")
-            raise
+        return completion.choices[0].message.parsed

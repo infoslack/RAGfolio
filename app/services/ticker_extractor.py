@@ -1,5 +1,6 @@
 from typing import Optional
 from openai import AsyncOpenAI
+from app.utils.decorators import handle_errors
 import logging
 
 logger = logging.getLogger(__name__)
@@ -24,6 +25,7 @@ class TickerExtractor:
         self.temperature = temperature
         self.max_tokens = max_tokens
 
+    @handle_errors("Ticker extraction")
     async def extract_ticker(self, message: str) -> Optional[str]:
         """Extract ticker symbol from user message using mapping + LLM fallback"""
 
@@ -49,32 +51,28 @@ class TickerExtractor:
 
         return None
 
+    @handle_errors("LLM ticker extraction")
     async def _try_llm_extraction(self, message: str) -> Optional[str]:
         """Use LLM to extract ticker from message"""
-        try:
-            logger.info("Using LLM to extract ticker from message")
+        logger.info("Using LLM to extract ticker from message")
 
-            extraction_prompt = self.prompt_manager.get_prompt("ticker_extraction")
+        extraction_prompt = self.prompt_manager.get_prompt("ticker_extraction")
 
-            completion = await self.client.chat.completions.create(
-                model=self.model,
-                temperature=self.temperature,
-                messages=[
-                    {"role": "system", "content": extraction_prompt},
-                    {"role": "user", "content": f"Extract ticker from: {message}"},
-                ],
-                max_tokens=self.max_tokens,
-            )
+        completion = await self.client.chat.completions.create(
+            model=self.model,
+            temperature=self.temperature,
+            messages=[
+                {"role": "system", "content": extraction_prompt},
+                {"role": "user", "content": f"Extract ticker from: {message}"},
+            ],
+            max_tokens=self.max_tokens,
+        )
 
-            result = completion.choices[0].message.content.strip().upper()
+        result = completion.choices[0].message.content.strip().upper()
 
-            if result == "NONE" or len(result) > 6:  # Basic validation
-                logger.info("LLM could not extract valid ticker")
-                return None
-
-            logger.info(f"LLM extracted ticker: {result}")
-            return result
-
-        except Exception as e:
-            logger.error(f"LLM ticker extraction failed: {str(e)}")
+        if result == "NONE" or len(result) > 6:  # Basic validation
+            logger.info("LLM could not extract valid ticker")
             return None
+
+        logger.info(f"LLM extracted ticker: {result}")
+        return result
