@@ -1,43 +1,22 @@
 analysis_queries:
   fundamental:  # 10-K documents
-    risk_factors:
-      query: "risk factors regulatory competitive operational threats"
-      section_name: "Risk factors"
-      prompt_name: "risk_analysis"
-    
-    business_model:
-      query: "business operations revenue model competitive advantages"
-      section_name: "Business"
-      prompt_name: "business_analysis"
-    
-    financial_statements:
-      query: "financial statements revenue income balance sheet cash flow"
-      section_name: "Financial statements"
-      prompt_name: "financial_analysis"
-    
-    management_discussion:
-      query: "management discussion analysis outlook guidance strategy"
-      section_name: "Management discussion"
-      prompt_name: "management_analysis"
+    all_sections:
+      queries:
+        - "risk factors regulatory competitive operational threats challenges"
+        - "business operations revenue model competitive advantages market position"
+        - "financial statements revenue income balance sheet cash flow debt"
+        - "management discussion analysis outlook guidance strategy MD&A"
+      prompt_name: "fundamental_analysis"
   
   momentum:  # 10-Q documents
-    operational_updates:
-      query: "business operations developments products services expansion"
-      section_name: "Operational"
-      prompt_name: "operational_updates"
-    
-    quarterly_performance:
-      query: "financial performance revenue margins liquidity costs quarterly"
-      section_name: "Financial performance"
-      prompt_name: "quarterly_performance"
-    
-    short_term_risks:
-      query: "risk factors emerging threats regulatory competitive short term"
-      section_name: "Risk factors"
-      prompt_name: "short_term_risks"
+    all_sections:
+      queries:
+        - "business operations developments products services expansion quarterly updates"
+        - "financial performance revenue margins liquidity costs quarterly results"
+        - "risk factors emerging threats regulatory competitive short term challenges"
+      prompt_name: "momentum_analysis"
   
   sentiment:  # News
     market_news:
-      query: "{ticker} earnings revenue stock price"
-      section_name: "Recent news"
+      query: "{ticker} earnings revenue stock price announcement news"
       prompt_name: "sentiment_analysis"

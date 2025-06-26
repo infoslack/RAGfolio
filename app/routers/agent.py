@@ -54,22 +54,21 @@ async def analyze_investment(
                 status_code=400, detail="Either ticker or message must be provided"
             )
 
-        # Service faz toda a lógica
+        # Service handles all business logic
         result = await agent_service.analyze_investment(
             ticker=request.ticker,
             message=request.message,
-            include_details=request.include_details,
         )
 
         logger.info(
-            f"Completed investment analysis for {request.ticker} in {result.execution_time:.2f}s"
+            f"Completed investment analysis for {result.ticker} in {result.execution_time:.2f}s"
         )
         return result
 
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        logger.error(f"Investment analysis failed for {request.ticker}: {str(e)}")
+        logger.error(f"Investment analysis failed: {str(e)}")
         raise HTTPException(
             status_code=500, detail=f"Investment analysis failed: {str(e)}"
         )

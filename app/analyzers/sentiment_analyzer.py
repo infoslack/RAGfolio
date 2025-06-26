@@ -31,6 +31,6 @@ class SentimentAnalyzer(BaseAnalyzer[MarketSentiment]):
         # Analyze sentiment
         return await self._call_openai_structured(
             prompt_name=config["prompt_name"],
-            user_content=f"{config['section_name']} content for {ticker}:\n{content}",
+            user_content=f"{config.get('section_name', 'News')} content for {ticker}:\n{content}",
             response_model=MarketSentiment,
         )

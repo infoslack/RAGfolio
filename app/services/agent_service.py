@@ -25,7 +25,6 @@ from app.models.agent import (
     MarketSentiment,
     FinalRecommendation,
     AgentResponse,
-    StreamResults,
 )
 
 import logging
@@ -99,7 +98,6 @@ class AgentService:
         self,
         ticker: Optional[str] = None,
         message: Optional[str] = None,
-        include_details: bool = False,
     ) -> AgentResponse:
         """Run complete investment analysis with all 3 streams + aggregation"""
         start_time = time.time()
@@ -115,11 +113,7 @@ class AgentService:
             logger.info(f"Starting complete investment analysis for {ticker}")
 
             # Execute all 3 streams in parallel
-            (
-                (stream1_result, stream1_details),
-                (stream2_result, stream2_details),
-                stream3_result,
-            ) = await asyncio.gather(
+            stream1_result, stream2_result, stream3_result = await asyncio.gather(
                 self.fundamental_analyzer.analyze(ticker),
                 self.momentum_analyzer.analyze(ticker),
                 self.sentiment_analyzer.analyze(ticker),
@@ -132,15 +126,6 @@ class AgentService:
 
             execution_time = time.time() - start_time
 
-            # Prepare detailed results if requested
-            detailed_results = None
-            if include_details:
-                detailed_results = StreamResults(
-                    stream1_details=stream1_details,
-                    stream2_details=stream2_details,
-                    stream3_details=stream3_result.model_dump(),
-                )
-
             logger.info(
                 f"Completed investment analysis for {ticker} in {execution_time:.2f}s"
             )
@@ -152,7 +137,6 @@ class AgentService:
                 momentum_analysis=stream2_result,
                 market_sentiment=stream3_result,
                 final_recommendation=final_recommendation,
-                detailed_results=detailed_results,
             )
 
         except Exception as e:
