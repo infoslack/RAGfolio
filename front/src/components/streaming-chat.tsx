@@ -58,8 +58,8 @@ export function StreamingChat() {
         body: JSON.stringify({
           query: query,
           model: 'llama3-8b-8192',
-          temperature: 0.7,
-          max_output_tokens: 2048,
+          temperature: 0.0,
+          max_output_tokens: 4096,
           limit: 5,
           filters: {}
         }),
