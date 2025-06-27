@@ -1,3 +1,4 @@
+groq
 aiohttp
 fastapi
 uvicorn
@@ -12,6 +13,6 @@ hdbscan
 yfinance
 ipykernel
 python-dotenv
+instructor[groq]
 sentence-transformers
 qdrant-client[fastembed]
-openai

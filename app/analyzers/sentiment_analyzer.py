@@ -31,7 +31,7 @@ class SentimentAnalyzer(BaseAnalyzer[MarketSentiment]):
         content = self.document_retriever.news_to_context(documents)
 
         # Analyze sentiment
-        return await self._call_openai_structured(
+        return await self._call_llm_structured(
             prompt_name=config["prompt_name"],
             user_content=f"{config.get('section_name', 'News')} content for {ticker}:\n{content}",
             response_model=MarketSentiment,

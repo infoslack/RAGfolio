@@ -33,7 +33,7 @@ class MomentumAnalyzer(BaseAnalyzer[MomentumAnalysis]):
         content = self.document_retriever.documents_to_context(all_documents)
 
         # Generate consolidated analysis directly
-        return await self._call_openai_structured(
+        return await self._call_llm_structured(
             prompt_name="momentum_analysis",
             user_content=f"Analyze this 10-Q content for {ticker}:\n\n{content}",
             response_model=MomentumAnalysis,

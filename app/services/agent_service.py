@@ -1,9 +1,10 @@
-import asyncio
 import time
+import asyncio
+import instructor
 from typing import Optional
 from pathlib import Path
 
-from openai import AsyncOpenAI
+from groq import AsyncGroq
 
 from app.config.settings import Settings
 from app.services.embedder import QueryEmbedder
@@ -39,9 +40,10 @@ class AgentService:
     def __init__(
         self, embedder: QueryEmbedder, retriever: QdrantRetriever, settings: Settings
     ):
-        # Initialize OpenAI client
-        self.client = AsyncOpenAI(api_key=settings.openai_api_key)
-        self.model = settings.openai_model
+        # Initialize LLM client and patch with Instructor
+        base_client = AsyncGroq(api_key=settings.llm_api_key)
+        self.client = instructor.from_groq(base_client)
+        self.model = settings.llm_model
 
         # Initialize services
         prompts_dir = Path(__file__).parent.parent / "prompts"
@@ -54,7 +56,7 @@ class AgentService:
         )
 
         self.ticker_extractor = TickerExtractor(
-            openai_api_key=settings.openai_api_key,
+            llm_api_key=settings.llm_api_key,
             model=self.model,
             prompt_manager=self.prompt_manager,
             config_loader=self.config_loader,
@@ -64,9 +66,9 @@ class AgentService:
 
         self.document_retriever = DocumentRetriever(embedder, retriever)
 
-        # Initialize analyzers with config
+        # Initialize analyzers with Instructor-patched client
         self.fundamental_analyzer = FundamentalAnalyzer(
-            openai_client=self.client,
+            llm_client=base_client,  # Pass base client, will be patched in BaseAnalyzer
             document_retriever=self.document_retriever,
             prompt_manager=self.prompt_manager,
             config_loader=self.config_loader,
@@ -76,7 +78,7 @@ class AgentService:
         )
 
         self.momentum_analyzer = MomentumAnalyzer(
-            openai_client=self.client,
+            llm_client=base_client,  # Pass base client, will be patched in BaseAnalyzer
             document_retriever=self.document_retriever,
             prompt_manager=self.prompt_manager,
             config_loader=self.config_loader,
@@ -86,7 +88,7 @@ class AgentService:
         )
 
         self.sentiment_analyzer = SentimentAnalyzer(
-            openai_client=self.client,
+            llm_client=base_client,  # Pass base client, will be patched in BaseAnalyzer
             document_retriever=self.document_retriever,
             prompt_manager=self.prompt_manager,
             config_loader=self.config_loader,
@@ -164,14 +166,13 @@ class AgentService:
 
         system_prompt = self.prompt_manager.get_prompt("final_recommendation")
 
-        completion = await self.client.beta.chat.completions.parse(
+        # Use Instructor for clean structured output - no manual JSON prompts needed!
+        return await self.client.chat.completions.create(
             model=self.model,
             temperature=0,
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": aggregation_input},
             ],
-            response_format=FinalRecommendation,
+            response_model=FinalRecommendation,  # Instructor handles everything!
         )
-
-        return completion.choices[0].message.parsed

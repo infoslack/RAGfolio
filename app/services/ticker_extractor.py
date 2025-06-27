@@ -1,9 +1,18 @@
 from typing import Optional
-from openai import AsyncOpenAI
+from groq import AsyncGroq
+import instructor
+from pydantic import BaseModel
 from app.utils.decorators import handle_errors
 import logging
 
 logger = logging.getLogger(__name__)
+
+
+class TickerResponse(BaseModel):
+    """Pydantic model for ticker extraction response"""
+
+    ticker: Optional[str]
+    reasoning: str
 
 
 class TickerExtractor:
@@ -11,14 +20,16 @@ class TickerExtractor:
 
     def __init__(
         self,
-        openai_api_key: str,
+        llm_api_key: str,
         model: str,
         prompt_manager,
         config_loader,
         temperature: float = 0.0,
-        max_tokens: int = 10,
+        max_tokens: int = 50,  # Increased for reasoning
     ):
-        self.client = AsyncOpenAI(api_key=openai_api_key)
+        # Initialize client and patch with Instructor
+        base_client = AsyncGroq(api_key=llm_api_key)
+        self.client = instructor.from_groq(base_client)
         self.model = model
         self.prompt_manager = prompt_manager
         self.config_loader = config_loader
@@ -34,7 +45,7 @@ class TickerExtractor:
         if ticker:
             return ticker
 
-        # Second try: LLM extraction (slower but comprehensive)
+        # Second try: LLM extraction with Instructor (slower but comprehensive)
         return await self._try_llm_extraction(message)
 
     def _try_direct_mapping(self, message: str) -> Optional[str]:
@@ -53,26 +64,31 @@ class TickerExtractor:
 
     @handle_errors("LLM ticker extraction")
     async def _try_llm_extraction(self, message: str) -> Optional[str]:
-        """Use LLM to extract ticker from message"""
+        """Use LLM with Instructor to extract ticker from message"""
         logger.info("Using LLM to extract ticker from message")
 
         extraction_prompt = self.prompt_manager.get_prompt("ticker_extraction")
 
-        completion = await self.client.chat.completions.create(
+        # Use Instructor for structured extraction
+        response = await self.client.chat.completions.create(
             model=self.model,
             temperature=self.temperature,
+            max_tokens=self.max_tokens,
             messages=[
                 {"role": "system", "content": extraction_prompt},
                 {"role": "user", "content": f"Extract ticker from: {message}"},
             ],
-            max_tokens=self.max_tokens,
+            response_model=TickerResponse,  # Instructor handles validation
         )
 
-        result = completion.choices[0].message.content.strip().upper()
-
-        if result == "NONE" or len(result) > 6:  # Basic validation
-            logger.info("LLM could not extract valid ticker")
+        # Validate ticker
+        if not response.ticker or response.ticker == "NONE" or len(response.ticker) > 6:
+            logger.info(
+                f"LLM could not extract valid ticker. Reasoning: {response.reasoning}"
+            )
             return None
 
-        logger.info(f"LLM extracted ticker: {result}")
-        return result
+        logger.info(
+            f"LLM extracted ticker: {response.ticker}. Reasoning: {response.reasoning}"
+        )
+        return response.ticker.upper()

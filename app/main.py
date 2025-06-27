@@ -2,7 +2,7 @@ import logging
 from fastapi import FastAPI
 from app.config.settings import Settings
 from app.routers.search import router as search_router
-from app.routers.openai import router as openai_router
+from app.routers.llm import router as llm_router
 from app.routers.agent import router as agent_router
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -41,7 +41,7 @@ def create_application():
 
     # Add routers
     app.include_router(search_router)
-    app.include_router(openai_router)
+    app.include_router(llm_router)
     app.include_router(agent_router)
 
     @app.get("/")

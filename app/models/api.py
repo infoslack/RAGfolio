@@ -13,7 +13,7 @@ class SearchResponse(BaseModel):
     results: List[Document]
 
 
-class OpenAIRequest(BaseModel):
+class LLMRequest(BaseModel):
     query: str
     model: Optional[str] = None
     temperature: Optional[float] = None
@@ -22,6 +22,6 @@ class OpenAIRequest(BaseModel):
     filters: Optional[Dict[str, str]] = None
 
 
-class OpenAIResponse(BaseModel):
+class LLMResponse(BaseModel):
     answer: str
     source_documents: List[Document]

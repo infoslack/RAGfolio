@@ -1,7 +1,7 @@
 import functools
 import logging
 from typing import TypeVar, Callable
-from openai import OpenAIError
+from groq import GroqError
 from fastapi import HTTPException
 
 logger = logging.getLogger(__name__)
@@ -25,10 +25,10 @@ def handle_errors(operation: str = "Operation"):
             except HTTPException:
                 # Re-raise HTTP exceptions as they already have proper status codes
                 raise
-            except OpenAIError as e:
-                # Handle OpenAI specific errors
-                logger.error(f"{operation} failed - OpenAI error: {str(e)}")
-                raise Exception(f"{operation} failed: OpenAI service error")
+            except GroqError as e:
+                # Handle Groq specific errors
+                logger.error(f"{operation} failed - Groq error: {str(e)}")
+                raise Exception(f"{operation} failed: LLM service error")
             except FileNotFoundError as e:
                 # Handle file not found errors (configs, prompts)
                 logger.error(f"{operation} failed - File not found: {str(e)}")

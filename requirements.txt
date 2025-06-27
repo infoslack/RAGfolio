@@ -3,13 +3,16 @@
 aiohappyeyeballs==2.6.1
     # via aiohttp
 aiohttp==3.12.13
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   instructor
 aiosignal==1.3.2
     # via aiohttp
 annotated-types==0.7.0
     # via pydantic
 anyio==4.9.0
     # via
+    #   groq
     #   httpx
     #   openai
     #   starlette
@@ -20,7 +23,11 @@ asttokens==3.0.0
 attrs==25.3.0
     # via aiohttp
 babel==2.17.0
-    # via courlan
+    # via
+    #   courlan
+    #   mkdocs-material
+backrefs==5.9
+    # via mkdocs-material
 beautifulsoup4==4.13.4
     # via yfinance
 certifi==2025.6.15
@@ -32,13 +39,20 @@ certifi==2025.6.15
     #   trafilatura
 cffi==1.17.1
     # via curl-cffi
+cfgv==3.4.0
+    # via pre-commit
 charset-normalizer==3.4.2
     # via
     #   htmldate
     #   requests
     #   trafilatura
 click==8.2.1
-    # via uvicorn
+    # via
+    #   mkdocs
+    #   typer
+    #   uvicorn
+colorama==0.4.6
+    # via mkdocs-material
 coloredlogs==15.0.1
     # via onnxruntime
 comm==0.2.2
@@ -47,17 +61,23 @@ courlan==1.3.2
     # via trafilatura
 curl-cffi==0.11.4
     # via yfinance
-dateparser==1.2.1
+dateparser==1.2.2
     # via htmldate
 debugpy==1.8.14
     # via ipykernel
 decorator==5.2.1
     # via ipython
+distlib==0.3.9
+    # via virtualenv
 distro==1.9.0
-    # via openai
+    # via
+    #   groq
+    #   openai
+docstring-parser==0.16
+    # via instructor
 executing==2.2.0
     # via stack-data
-fastapi==0.115.13
+fastapi==0.115.14
     # via -r requirements.in
 fastembed==0.7.1
     # via qdrant-client
@@ -66,6 +86,7 @@ filelock==3.18.0
     #   huggingface-hub
     #   torch
     #   transformers
+    #   virtualenv
 flatbuffers==25.2.10
     # via onnxruntime
 frozendict==2.4.6
@@ -78,7 +99,13 @@ fsspec==2025.5.1
     # via
     #   huggingface-hub
     #   torch
-grpcio==1.73.0
+ghp-import==2.1.0
+    # via mkdocs
+groq==0.26.0
+    # via
+    #   -r requirements.in
+    #   instructor
+grpcio==1.73.1
     # via qdrant-client
 h11==0.16.0
     # via
@@ -98,9 +125,10 @@ httpcore==1.0.9
     # via httpx
 httpx==0.28.1
     # via
+    #   groq
     #   openai
     #   qdrant-client
-huggingface-hub==0.33.0
+huggingface-hub==0.33.1
     # via
     #   fastembed
     #   sentence-transformers
@@ -110,12 +138,16 @@ humanfriendly==10.0
     # via coloredlogs
 hyperframe==6.1.0
     # via h2
+identify==2.6.12
+    # via pre-commit
 idna==3.10
     # via
     #   anyio
     #   httpx
     #   requests
     #   yarl
+instructor==1.9.0
+    # via -r requirements.in
 ipykernel==6.29.5
     # via -r requirements.in
 ipython==9.3.0
@@ -125,9 +157,15 @@ ipython-pygments-lexers==1.1.1
 jedi==0.19.2
     # via ipython
 jinja2==3.1.6
-    # via torch
+    # via
+    #   instructor
+    #   mkdocs
+    #   mkdocs-material
+    #   torch
 jiter==0.10.0
-    # via openai
+    # via
+    #   instructor
+    #   openai
 joblib==1.5.1
     # via
     #   hdbscan
@@ -150,17 +188,42 @@ lxml==5.4.0
     #   trafilatura
 lxml-html-clean==0.4.2
     # via lxml
+markdown==3.8.2
+    # via
+    #   mkdocs
+    #   mkdocs-material
+    #   pymdown-extensions
+markdown-it-py==3.0.0
+    # via rich
 markupsafe==3.0.2
-    # via jinja2
+    # via
+    #   jinja2
+    #   mkdocs
 matplotlib-inline==0.1.7
     # via
     #   ipykernel
     #   ipython
+mdurl==0.1.2
+    # via markdown-it-py
+mergedeep==1.3.4
+    # via
+    #   mkdocs
+    #   mkdocs-get-deps
+mkdocs==1.6.1
+    # via
+    #   instructor
+    #   mkdocs-material
+mkdocs-get-deps==0.2.0
+    # via mkdocs
+mkdocs-material==9.6.14
+    # via instructor
+mkdocs-material-extensions==1.3.1
+    # via mkdocs-material
 mmh3==5.1.0
     # via fastembed
 mpmath==1.3.0
     # via sympy
-multidict==6.4.4
+multidict==6.5.1
     # via
     #   aiohttp
     #   yarl
@@ -170,6 +233,8 @@ nest-asyncio==1.6.0
     # via ipykernel
 networkx==3.5
     # via torch
+nodeenv==1.9.1
+    # via pre-commit
 numpy==2.3.1
     # via
     #   fastembed
@@ -183,18 +248,23 @@ numpy==2.3.1
     #   yfinance
 onnxruntime==1.22.0
     # via fastembed
-openai==1.91.0
-    # via -r requirements.in
+openai==1.92.2
+    # via instructor
 packaging==25.0
     # via
     #   huggingface-hub
     #   ipykernel
+    #   mkdocs
     #   onnxruntime
     #   transformers
+paginate==0.5.7
+    # via mkdocs-material
 pandas==2.3.0
     # via yfinance
 parso==0.8.4
     # via jedi
+pathspec==0.12.1
+    # via mkdocs
 peewee==3.18.1
     # via yfinance
 pexpect==4.9.0
@@ -206,9 +276,13 @@ pillow==11.2.1
 platformdirs==4.3.8
     # via
     #   jupyter-core
+    #   mkdocs-get-deps
+    #   virtualenv
     #   yfinance
 portalocker==2.10.1
     # via qdrant-client
+pre-commit==4.2.0
+    # via instructor
 prompt-toolkit==3.0.51
     # via ipython
 propcache==0.3.2
@@ -234,24 +308,33 @@ pydantic==2.11.7
     # via
     #   -r requirements.in
     #   fastapi
+    #   groq
+    #   instructor
     #   openai
     #   pydantic-settings
     #   qdrant-client
 pydantic-core==2.33.2
-    # via pydantic
-pydantic-settings==2.10.0
+    # via
+    #   instructor
+    #   pydantic
+pydantic-settings==2.10.1
     # via -r requirements.in
 pygments==2.19.2
     # via
     #   ipython
     #   ipython-pygments-lexers
+    #   mkdocs-material
+    #   rich
+pymdown-extensions==10.16
+    # via mkdocs-material
 python-dateutil==2.9.0.post0
     # via
     #   dateparser
+    #   ghp-import
     #   htmldate
     #   jupyter-client
     #   pandas
-python-dotenv==1.1.0
+python-dotenv==1.1.1
     # via
     #   -r requirements.in
     #   pydantic-settings
@@ -266,7 +349,14 @@ pyyaml==6.0.2
     # via
     #   -r requirements.in
     #   huggingface-hub
+    #   mkdocs
+    #   mkdocs-get-deps
+    #   pre-commit
+    #   pymdown-extensions
+    #   pyyaml-env-tag
     #   transformers
+pyyaml-env-tag==1.1
+    # via mkdocs
 pyzmq==27.0.0
     # via
     #   ipykernel
@@ -282,17 +372,23 @@ requests==2.32.4
     # via
     #   fastembed
     #   huggingface-hub
+    #   instructor
+    #   mkdocs-material
     #   sec-api
     #   tiktoken
     #   transformers
     #   yfinance
+rich==14.0.0
+    # via
+    #   instructor
+    #   typer
 safetensors==0.5.3
     # via transformers
 scikit-learn==1.7.0
     # via
     #   hdbscan
     #   sentence-transformers
-scipy==1.15.3
+scipy==1.16.0
     # via
     #   hdbscan
     #   scikit-learn
@@ -303,11 +399,14 @@ sentence-transformers==4.1.0
     # via -r requirements.in
 setuptools==80.9.0
     # via torch
+shellingham==1.5.4
+    # via typer
 six==1.17.0
     # via python-dateutil
 sniffio==1.3.1
     # via
     #   anyio
+    #   groq
     #   openai
 soupsieve==2.7
     # via beautifulsoup4
@@ -319,13 +418,15 @@ sympy==1.14.0
     # via
     #   onnxruntime
     #   torch
+tenacity==9.1.2
+    # via instructor
 threadpoolctl==3.6.0
     # via scikit-learn
 tiktoken==0.9.0
     # via -r requirements.in
 tld==0.13.1
     # via courlan
-tokenizers==0.21.1
+tokenizers==0.21.2
     # via
     #   fastembed
     #   transformers
@@ -352,18 +453,22 @@ traitlets==5.14.3
     #   jupyter-client
     #   jupyter-core
     #   matplotlib-inline
-transformers==4.52.4
+transformers==4.53.0
     # via sentence-transformers
+typer==0.16.0
+    # via instructor
 typing-extensions==4.14.0
     # via
     #   beautifulsoup4
     #   fastapi
+    #   groq
     #   huggingface-hub
     #   openai
     #   pydantic
     #   pydantic-core
     #   sentence-transformers
     #   torch
+    #   typer
     #   typing-inspection
 typing-inspection==0.4.1
     # via
@@ -382,6 +487,10 @@ urllib3==2.5.0
     #   trafilatura
 uvicorn==0.34.3
     # via -r requirements.in
+virtualenv==20.31.2
+    # via pre-commit
+watchdog==6.0.0
+    # via mkdocs
 wcwidth==0.2.13
     # via prompt-toolkit
 websockets==15.0.1

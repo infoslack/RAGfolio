@@ -20,31 +20,23 @@ class Settings(BaseSettings):
     bm25_model_name: str = "Qdrant/bm25"
     late_interaction_model_name: str = "colbert-ir/colbertv2.0"
 
-    # OpenAI Configuration
-    openai_api_key: Optional[str] = None
-    openai_model: str = "gpt-4o-mini"
-    openai_temperature: float = 0.5
-    openai_max_output_tokens: int = 4096
-    openai_system_prompt: str = """Você é um assistente útil que responde a perguntas com base apenas no contexto fornecido.
-
-    Contexto:
-    {context}
-
-    Pergunta: {query}
-
-    Responda à pergunta acima usando apenas as informações do contexto fornecido."""
+    # LLM Configuration
+    llm_api_key: Optional[str] = None
+    llm_model: str = "llama3-8b-8192"
+    llm_temperature: float = 0.0
+    llm_max_output_tokens: int = 4096
 
     # Document retrieval settings
-    document_search_limit: int = 5
-    news_search_limit: int = 10
+    document_search_limit: int = 3
+    news_search_limit: int = 3
 
-    # OpenAI analysis settings
+    # LLM analysis settings
     analysis_temperature: float = 0.0
-    analysis_max_tokens: Optional[int] = None  # Use OpenAI default
+    analysis_max_tokens: Optional[int] = None
 
     # Ticker extraction settings
     ticker_extraction_temperature: float = 0.0
-    ticker_extraction_max_tokens: int = 10
+    ticker_extraction_max_tokens: int = 5
 
     # Config file paths
     queries_config_path: str = "app/config/queries.yaml"

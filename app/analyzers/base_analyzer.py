@@ -1,9 +1,10 @@
 from abc import ABC, abstractmethod
 from typing import TypeVar, Generic, Type, Optional
-from openai import AsyncOpenAI
+from groq import AsyncGroq
 from app.services.document_retriever import DocumentRetriever
 from app.services.prompt_manager import PromptManager
 from app.utils.decorators import handle_errors
+import instructor
 import logging
 
 logger = logging.getLogger(__name__)
@@ -12,11 +13,11 @@ T = TypeVar("T")  # Generic type for analysis results
 
 
 class BaseAnalyzer(ABC, Generic[T]):
-    """Base class for all analyzers"""
+    """Base class for all analyzers - now using Instructor for structured outputs"""
 
     def __init__(
         self,
-        openai_client: AsyncOpenAI,
+        llm_client: AsyncGroq,
         document_retriever: DocumentRetriever,
         prompt_manager: PromptManager,
         config_loader,
@@ -24,7 +25,8 @@ class BaseAnalyzer(ABC, Generic[T]):
         temperature: float = 0.0,
         document_limit: int = 5,
     ):
-        self.client = openai_client
+        # Patch Groq client with Instructor for structured outputs
+        self.client = instructor.from_groq(llm_client)
         self.document_retriever = document_retriever
         self.prompt_manager = prompt_manager
         self.config_loader = config_loader
@@ -37,32 +39,31 @@ class BaseAnalyzer(ABC, Generic[T]):
         """Main analysis method to be implemented by subclasses"""
         pass
 
-    @handle_errors("OpenAI structured call")
-    async def _call_openai_structured(
+    @handle_errors("LLM structured call")
+    async def _call_llm_structured(
         self,
         prompt_name: str,
         user_content: str,
         response_model: Type[T],
         temperature: Optional[float] = None,
     ) -> T:
-        """Helper method to call OpenAI with structured output"""
+        """Helper method to call LLM with structured output using Instructor"""
         system_prompt = self.prompt_manager.get_prompt(prompt_name)
 
         # Use instance temperature if not specified
         if temperature is None:
             temperature = self.temperature
 
-        completion = await self.client.beta.chat.completions.parse(
+        # Use Instructor for clean structured output - no manual JSON prompts needed!
+        return await self.client.chat.completions.create(
             model=self.model,
             temperature=temperature,
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_content},
             ],
-            response_format=response_model,
+            response_model=response_model,  # Instructor handles everything!
         )
-
-        return completion.choices[0].message.parsed
 
     async def _analyze_section(
         self,
@@ -90,8 +91,8 @@ class BaseAnalyzer(ABC, Generic[T]):
         # Convert to context
         content = self.document_retriever.documents_to_context(documents)
 
-        # Call OpenAI with structured output
-        return await self._call_openai_structured(
+        # Call LLM with structured output
+        return await self._call_llm_structured(
             prompt_name=prompt_name,
             user_content=f"{section_name} content:\n{content}",
             response_model=response_model,

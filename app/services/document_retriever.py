@@ -53,13 +53,20 @@ class DocumentRetriever:
             return []
 
     @staticmethod
-    def documents_to_context(documents: List[Document]) -> str:
+    def documents_to_context(documents: List[Document], max_chars: int = 15000) -> str:
         """Convert documents to context string for LLM"""
         if not documents:
             return "No relevant content found"
 
         content_parts = [doc.page_content for doc in documents if doc.page_content]
-        return "\n\n".join(content_parts)
+        full_content = "\n\n".join(content_parts)
+
+        # Truncate if too long
+        if len(full_content) > max_chars:
+            full_content = (
+                full_content[:max_chars] + "\n\n[Content truncated due to length...]"
+            )
+        return full_content
 
     @staticmethod
     def news_to_context(documents: List[Document]) -> str:
