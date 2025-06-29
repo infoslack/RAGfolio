@@ -54,7 +54,7 @@ async def generate_llm_response(
                 "No relevant documents found for query", extra={"query": request.query}
             )
 
-        answer = llm_service.generate_response(
+        answer = await llm_service.generate_response(
             query=request.query,
             context_documents=context_documents,
             model=request.model,
