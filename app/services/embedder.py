@@ -1,8 +1,9 @@
+import os
+from typing import Optional
 from fastembed import TextEmbedding
 from fastembed.sparse.bm25 import Bm25
 from app.models.embeddings import QueryEmbeddings, SparseVector
 from fastembed.late_interaction import LateInteractionTextEmbedding
-import os
 
 
 class QueryEmbedder:
@@ -11,24 +12,26 @@ class QueryEmbedder:
         dense_model_name: str,
         bm25_model_name: str,
         late_interaction_model_name: str,
+        cache_dir: Optional[str] = None,
+        local_files_only: bool = True,
     ):
         # Disable tokenizer parallelism to prevent deadlocks
         if "TOKENIZERS_PARALLELISM" not in os.environ:
             os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
-        # Initialize the three embedding models
-        self.dense_embedding_model = TextEmbedding(
-            dense_model_name, cache_dir="/tmp/vector", local_files_only=True
-        )  # For dense vectors
-        self.bm25_embedding_model = Bm25(
-            bm25_model_name, cache_dir="/tmp/vector", local_files_only=True
-        )  # For sparse vectors
-        self.late_interaction_model = (
-            LateInteractionTextEmbedding(  # For token-level vectors
-                late_interaction_model_name,
-                cache_dir="/tmp/vector",
-                local_files_only=True,
-            )
+        # Prepare common kwargs for all models
+        model_kwargs = {}
+        if cache_dir is not None:
+            model_kwargs["cache_dir"] = cache_dir
+        model_kwargs["local_files_only"] = local_files_only
+
+        # Initialize the three embedding models with optional parameters
+        self.dense_embedding_model = TextEmbedding(dense_model_name, **model_kwargs)
+
+        self.bm25_embedding_model = Bm25(bm25_model_name, **model_kwargs)
+
+        self.late_interaction_model = LateInteractionTextEmbedding(
+            late_interaction_model_name, **model_kwargs
         )
 
     def embed_query(self, query: str) -> QueryEmbeddings:

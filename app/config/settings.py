@@ -20,6 +20,10 @@ class Settings(BaseSettings):
     bm25_model_name: str = "Qdrant/bm25"
     late_interaction_model_name: str = "colbert-ir/colbertv2.0"
 
+    # Models cache
+    embedder_cache_dir: Optional[str] = "/tmp/vector"
+    embedder_local_files_only: bool = True
+
     # LLM Configuration
     llm_api_key: Optional[str] = None
     llm_model: str = "llama3-8b-8192"

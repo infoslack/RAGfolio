@@ -16,6 +16,8 @@ def get_embedder(settings: Settings = Depends(get_settings)):
         dense_model_name=settings.dense_model_name,
         bm25_model_name=settings.bm25_model_name,
         late_interaction_model_name=settings.late_interaction_model_name,
+        cache_dir=settings.embedder_cache_dir,
+        local_files_only=settings.embedder_local_files_only,
     )
 
 
