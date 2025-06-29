@@ -135,6 +135,29 @@ cp .env-example .env
 
 3. Ensure your Qdrant vector database is running and populated with financial documents
 
+### Running with Docker (Recommended)
+Prerequisites for Docker:
+- Docker and Docker Compose installed
+- API keys configured in .env file
+
+**Quick Start with Docker Compose:**
+```bash
+# Clone the repository
+git clone https://github.com/your-username/RAGfolio.git
+cd RAGfolio
+
+# Configure environment variables
+cp .env-example .env
+# Edit .env with your API keys and configuration
+
+# Start the full application stack
+docker-compose up --build
+```
+This will start:
+
+- Backend API: http://localhost:8000 with interactive docs at /docs
+- Frontend Interface: http://localhost:3000
+
 ### Running the API
 ```bash
 uvicorn app.main:app --reload
