@@ -2,6 +2,8 @@
 
 A multi-stream investment analysis system using RAG (Retrieval-Augmented Generation) to analyze stocks through fundamental, momentum, and sentiment analysis. Inspired by the [FinGPT paper's](https://arxiv.org/abs/2306.06031) approach to financial AI, RAGfolio combines structured data retrieval with LLM reasoning to provide comprehensive investment insights.
 
+https://github.com/user-attachments/assets/c7656a0e-d75c-459d-88f1-00981cbb86bf
+
 ## Solution Overview
 
 This project combines advanced vector search with LLM analysis to provide comprehensive investment insights through three parallel streams:
